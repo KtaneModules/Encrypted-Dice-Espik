@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 
@@ -42,7 +43,7 @@ public class EncrypedDice : MonoBehaviour {
         moduleId = moduleIdCounter++;
 
         // Delegation
-        RollButton.OnInteract += delegate () { RollButtonPressed();  return false; };
+        RollButton.OnInteract += delegate () { RollButtonPressed(); return false; };
 
         for (int i = 0; i < SelectDice.Length; i++) {
             int j = i;
@@ -241,7 +242,7 @@ public class EncrypedDice : MonoBehaviour {
 
     // Updates the LEDs
     private void UpdateLEDs() {
-        switch(stagesCompleted) {
+        switch (stagesCompleted) {
         case 0: {
             LEDS[0].material = LEDMaterials[0];
             LEDS[1].material = LEDMaterials[0];
@@ -306,5 +307,65 @@ public class EncrypedDice : MonoBehaviour {
 
         yield return new WaitForSeconds(0.8f);
         UpdateLEDs();
+    }
+
+
+    // Twitch Plays support - made by eXish
+
+
+    //twitch plays
+    private bool isValid(string c) {
+        char[] valids = { '1', '2', '3', '4', '5', '6' };
+        if (!valids.Contains(c.ElementAt(0))) {
+            return false;
+        }
+        return true;
+    }
+
+#pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} submit <value1> <value2> [Submits the two specified values for each respective dice] | Valid values are 1-6";
+#pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command) {
+        string[] parameters = command.Split(' ');
+        if (Regex.IsMatch(parameters[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+            yield return null;
+            if (!canRoll) {
+                yield return "sendtochaterror Cannot submit dice values while the dice are rolling!";
+                yield break;
+            }
+            if (parameters.Length == 3) {
+                if (isValid(parameters[1])) {
+                    if (isValid(parameters[2])) {
+                        int temp = 0;
+                        int temp2 = 0;
+                        int.TryParse(parameters[1], out temp);
+                        int.TryParse(parameters[2], out temp2);
+                        while (temp != submittedValues[0]) { SelectDice[0].OnInteract(); yield return new WaitForSeconds(0.1f); }
+                        while (temp2 != submittedValues[1]) { SelectDice[1].OnInteract(); yield return new WaitForSeconds(0.1f); }
+                        RollButton.OnInteract();
+                    }
+                    else {
+                        yield return "sendtochaterror '" + parameters[2] + "' is an invalid dice value!";
+                    }
+                }
+                else {
+                    yield return "sendtochaterror '" + parameters[1] + "' is an invalid dice value!";
+                }
+            }
+            else if (parameters.Length == 2) {
+                yield return "sendtochaterror Please specify the value of the second dice!";
+            }
+            else if (parameters.Length == 1) {
+                yield return "sendtochaterror Please specify the values of each of the two dice!";
+            }
+            yield break;
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve() {
+        for (int i = stagesCompleted; i < 3; i++) {
+            while (!canRoll) { yield return true; }
+            yield return ProcessTwitchCommand("submit " + x + " " + y);
+        }
     }
 }
