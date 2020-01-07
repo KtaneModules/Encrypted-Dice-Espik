@@ -333,7 +333,10 @@ public class EncrypedDice : MonoBehaviour {
                 yield return "sendtochaterror Cannot submit dice values while the dice are rolling!";
                 yield break;
             }
-            if (parameters.Length == 3) {
+            if (parameters.Length > 3) {
+                yield return "sendtochaterror Cannot submit over 2 dice values!";
+            }
+            else if (parameters.Length == 3) {
                 if (isValid(parameters[1])) {
                     if (isValid(parameters[2])) {
                         int temp = 0;
