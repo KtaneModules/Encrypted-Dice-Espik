@@ -311,20 +311,17 @@ public class EncrypedDice : MonoBehaviour {
 
 
     // Twitch Plays support - made by eXish
-
-
-    //twitch plays
     private bool isValid(string c) {
-        char[] valids = { '1', '2', '3', '4', '5', '6' };
-        if (!valids.Contains(c.ElementAt(0))) {
+        string[] valids = { "1", "2", "3", "4", "5", "6" };
+        if (!valids.Contains(c)) {
             return false;
         }
         return true;
     }
 
-#pragma warning disable 414
+    #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} submit <value1> <value2> [Submits the two specified values for each respective dice] | Valid values are 1-6";
-#pragma warning restore 414
+    #pragma warning restore 414
     IEnumerator ProcessTwitchCommand(string command) {
         string[] parameters = command.Split(' ');
         if (Regex.IsMatch(parameters[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
@@ -367,7 +364,7 @@ public class EncrypedDice : MonoBehaviour {
 
     IEnumerator TwitchHandleForcedSolve() {
         for (int i = stagesCompleted; i < 3; i++) {
-            while (!canRoll) { yield return true; }
+            while (!canRoll) { yield return true; yield return new WaitForSeconds(0.1f); }
             yield return ProcessTwitchCommand("submit " + x + " " + y);
         }
     }
