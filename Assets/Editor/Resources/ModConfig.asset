@@ -14,7 +14,7 @@ MonoBehaviour:
   id: EncryptedDice
   title: Encrypted Dice
   author: Espik
-  description: 'Encrypted Dice v1.102
+  description: 'Encrypted Dice v1.103
 
     Now made easier and simpler!
 
@@ -26,6 +26,6 @@ MonoBehaviour:
 
 
     Source Code: https://github.com/Espik/Encrypted-Dice'
-  version: v1.102
+  version: v1.103
   outputFolder: build
   previewImage: {fileID: 2800000, guid: d660f39ba5e0a3b4cb89c51f6f41d8c3, type: 3}
